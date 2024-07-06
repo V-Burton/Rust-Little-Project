@@ -1,0 +1,22 @@
+# Ignorer les dossiers de construction et de dépendances
+*/target/
+*/Cargo.lock
+
+# Ignorer les fichiers temporaires
+*.rs.bk
+*.swp
+*.swo
+*.tmp
+
+# Ignorer les fichiers générés par les éditeurs et IDE
+.idea/
+*.iml
+*.log
+.vscode/
+*.code-workspace
+
+# Ignorer les fichiers générés par les tests
+/tests-output/
+
+# Ignorer les fichiers de configuration spécifiques à l'utilisateur
+*.env
