@@ -20,3 +20,4 @@
 
 # Ignorer les fichiers de configuration spécifiques à l'utilisateur
 *.env
+*.DS_Store
