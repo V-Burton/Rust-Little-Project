@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Transaction {
     id: String,
+    #[serde(rename = "accountId")]
     account_id: String,
     amount: Amount,
     descriptions: Descriptions,
@@ -12,19 +13,22 @@ pub struct Transaction {
     types: Types,
     status: String,
     reference: String,
-    providerMutability: String,
+    #[serde(rename = "providerMutability")]
+    provider_mutability: String,
 }
 
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Amount {
     value: ValueDetail,
-    currencyCode: String,
+    #[serde(rename = "currencyCode")]
+    currency_code: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ValueDetail {
-    unscaledValue: String,
+    #[serde(rename = "unscaledValue")]
+    unscaled_value: String,
     scale: String,
 }
 
@@ -64,7 +68,7 @@ pub fn push_transaction_to_result(result: &mut VecDeque<Spent>, data: &mut Trans
     for transaction in &data.transactions{
         let display = transaction.descriptions.display.clone();
         let date = transaction.dates.value.clone();
-        let value = transaction.amount.value.unscaledValue.clone();
+        let value = transaction.amount.value.unscaled_value.clone();
         let scale = transaction.amount.value.scale.parse::<i32>().expect("Unable to parse scale");
         let unscaled_value = value.parse::<f64>().expect("Unable to parse unscaled value");
         let scaled_value = unscaled_value / 10f64.powi(scale);
