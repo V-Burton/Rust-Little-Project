@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Transaction {
     id: String,
-    accountId: String,
+    account_id: String,
     amount: Amount,
     descriptions: Descriptions,
     dates: Dates,
