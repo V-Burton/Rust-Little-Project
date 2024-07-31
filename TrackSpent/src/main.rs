@@ -1,52 +1,100 @@
-use std::io;
-use std::collections::HashMap;
-use std::fs;
-use std::collections::VecDeque;
+#[macro_use]
+extern crate diesel;
+extern crate dotenv;
 
-mod display;
-mod spent;
-mod sort;
+use warp::Filter;
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
+use serde::{Deserialize, Serialize};
+use std::env;
+use dotenv::dotenv;
+use std::sync::{Arc, Mutex};
 
-use spent::{push_transaction_to_result, Spent, TransactionsData};
-use display::show_categories;
-use sort::sort;
+mod schema;
+mod models;
 
+use models::{User, NewUser};
+use schema::users::dsl::*;
 
-fn intialize(outcome: &mut HashMap<String, Vec<Spent>>, income: &mut HashMap<String, Vec<Spent>>) {
-    outcome.insert("Charges".to_string(), Vec::new());
-    outcome.insert("Food".to_string(), Vec::new());
-    outcome.insert("Save".to_string(), Vec::new());
-    outcome.insert("Other".to_string(), Vec::new());
-    income.insert("Revenu".to_string(), Vec::new());
-    income.insert("Refund".to_string(), Vec::new());
-    income.insert("Gift".to_string(), Vec::new());
-    income.insert("Other".to_string(), Vec::new());
+#[derive(Serialize, Deserialize)]
+struct LoginRequest {
+    username: String,
+    password: String,
 }
 
-fn main() {
-    let mut outcome: HashMap<String, Vec<Spent>> = HashMap::new();
-    let mut income: HashMap<String, Vec<Spent>> = HashMap::new();
-
-    intialize(&mut outcome, &mut income);
-
-    let file_content = fs::read_to_string("checkData.json").expect("Unable to read file");
-    let mut data: TransactionsData = serde_json::from_str(&file_content).expect("Unable to parse JSON");
-    
-    let mut result: VecDeque<spent::Spent> = VecDeque::new();
-    
-    push_transaction_to_result(&mut result, &mut data);
-
-    loop {
-        println!("What do you want to do?\n\t Sort \n\t Show categories\n\t quit");
-        let mut input: String = String::new();
-        io::stdin().read_line(&mut input).expect("Failed to read line");
-        match input.trim() {
-            "Sort" => sort(&mut result, &mut outcome, &mut income),
-            "Show categories" => show_categories(&outcome, &income),
-            "quit" => break,
-            _ => continue,
-        }
-
-    }
+#[derive(Serialize, Deserialize)]
+struct RegisterRequest {
+    username: String,
+    password: String,
 }
 
+#[tokio::main]
+async fn main() {
+    dotenv().ok();
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let connection = Arc::new(Mutex::new(establish_connection(&database_url)));
+
+    // Serve static files from the "static" directory
+    let static_files = warp::fs::dir("static");
+
+    // Define login route
+    let login_route = warp::post()
+        .and(warp::path("login"))
+        .and(warp::body::json())
+        .and(with_db(connection.clone()))
+        .map(|login: LoginRequest, conn: Arc<Mutex<SqliteConnection>>| {
+            let mut conn = conn.lock().unwrap();
+            let user = users
+                .filter(username.eq(&login.username))
+                .first::<User>(&mut *conn)
+                .optional()
+                .expect("Error loading user");
+
+            if let Some(user) = user {
+                if user.password == login.password {
+                    warp::reply::json(&"Login successful")
+                } else {
+                    warp::reply::json(&"Invalid username or password")
+                }
+            } else {
+                warp::reply::json(&"Invalid username or password")
+            }
+        });
+
+    // Define register route
+    let register_route = warp::post()
+        .and(warp::path("register"))
+        .and(warp::body::json())
+        .and(with_db(connection.clone()))
+        .map(|register: RegisterRequest, conn: Arc<Mutex<SqliteConnection>>| {
+            let mut conn = conn.lock().unwrap();
+            let new_user = NewUser {
+                username: register.username,
+                password: register.password,
+            };
+
+            diesel::insert_into(users)
+                .values(&new_user)
+                .execute(&mut *conn)
+                .expect("Error saving new user");
+
+            warp::reply::json(&"User registered successfully")
+        });
+
+    // Combine routes
+    let routes = static_files.or(login_route).or(register_route);
+
+    // Start the warp server
+    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+}
+
+fn establish_connection(database_url: &str) -> SqliteConnection {
+    SqliteConnection::establish(database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
+
+fn with_db(
+    conn: Arc<Mutex<SqliteConnection>>,
+) -> impl Filter<Extract = (Arc<Mutex<SqliteConnection>>,), Error = std::convert::Infallible> + Clone {
+    warp::any().map(move || conn.clone())
+}

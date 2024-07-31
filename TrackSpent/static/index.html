@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .login, .register, .dashboard, .categories {
+            display: none;
+        }
+        .login {
+            display: block; /* Make the login form visible by default */
+        }
+    </style>
+</head>
+<body>
+    <div class="login">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Username">
+        <input type="password" id="login-password" placeholder="Password">
+        <button onclick="login()">Enter</button>
+        <p id="login-msg"></p>
+        <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+
+    <div class="register">
+        <h2>Register</h2>
+        <input type="text" id="register-username" placeholder="Username">
+        <input type="password" id="register-password" placeholder="Password">
+        <button onclick="register()">Register</button>
+        <p id="register-msg"></p>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+    </div>
+
+    <div class="dashboard">
+        <button onclick="sort()">Sort</button>
+        <button onclick="showCategories()">Show categories</button>
+        <div class="description">
+            <button onclick="showHome()">Home</button>
+            <p>Description of spent</p>
+            <button>Save</button>
+            <button>Charges</button>
+            <button>Food</button>
+            <button>Other</button>
+            <button>Add Category</button>
+        </div>
+    </div>
+
+    <div class="categories">
+        <h2>Categories</h2>
+        <div>
+            <button>2023</button>
+            <button>2024</button>
+        </div>
+        <div>
+            <button>Jan</button>
+            <button>Feb</button>
+            <button>Mars</button>
+            <button>Avril</button>
+            <button>Mai</button>
+            <button>Juin</button>
+            <button>Nov</button>
+            <button>Dec</button>
+        </div>
+        <div>
+            <table>
+                <tr><th>Income</th></tr>
+                <tr><td>Revenu</td><td>2400</td></tr>
+                <tr><td>Refund</td><td>70</td></tr>
+                <tr><td>Gift</td><td>0</td></tr>
+                <tr><td>Other</td><td>1200</td></tr>
+                <tr><td>Total</td><td>3670</td></tr>
+            </table>
+            <table>
+                <tr><th>Outcome</th></tr>
+                <tr><td>Save</td><td>-12</td></tr>
+                <tr><td>Food</td><td>-45</td></tr>
+                <tr><td>Charges</td><td>-211</td></tr>
+                <tr><td>Other</td><td>-50</td></tr>
+                <tr><td>Total</td><td>-318</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
