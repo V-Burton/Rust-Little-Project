@@ -3,34 +3,34 @@ use std::collections::HashMap;
 
 use crate::Spent;
 
-fn display_expense(data_bis: &HashMap<String, Vec<Spent>>, target: &str) {
-    let mut table = Table::new();
-    table.add_row(Row::new(vec![
-        Cell::new("reason"),
-        Cell::new("date"),
-        Cell::new("amount"),
-    ]));
-    let mut total: f64 = 0.0;
-    for (category, spends) in data_bis {
-        if *category == target {
-            for spent in spends {
-                table.add_row(Row::new(vec![Cell::new(&spent.reason), Cell::new(&spent.date), Cell::new(&format!("{}", spent.amount))]));
-                total += spent.amount;
-            }
-        }
-    }
-    table.add_row(Row::new(vec![
-        Cell::new("Total").style_spec("b"),
-        Cell::new(&format!("{}", total)).style_spec("b"),
-    ]));
+// fn display_expense(data_bis: &HashMap<String, Vec<Spent>>, target: &str) {
+//     let mut table = Table::new();
+//     table.add_row(Row::new(vec![
+//         Cell::new("reason"),
+//         Cell::new("date"),
+//         Cell::new("amount"),
+//     ]));
+//     let mut total: f64 = 0.0;
+//     for (category, spends) in data_bis {
+//         if *category == target {
+//             for spent in spends {
+//                 table.add_row(Row::new(vec![Cell::new(&spent.reason), Cell::new(&format!("{}", spent.date)), Cell::new(&format!("{}", spent.amount))]));
+//                 total += spent.amount;
+//             }
+//         }
+//     }
+//     table.add_row(Row::new(vec![
+//         Cell::new("Total").style_spec("b"),
+//         Cell::new(&format!("{}", total)).style_spec("b"),
+//     ]));
 
-    table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
-    table.printstd();
-}
+//     table.set_format(*format::consts::FORMAT_NO_LINESEP_WITH_TITLE);
+//     table.printstd();
+// }
 
 pub fn display_transaction(transaction: &Spent){
     let mut table = Table::new();
-    table.add_row(Row::new(vec![Cell::new(&transaction.reason), Cell::new(&transaction.date), Cell::new(&format!("{}", transaction.amount))]));
+    table.add_row(Row::new(vec![Cell::new(&transaction.reason), Cell::new(&format!("{}", transaction.date)), Cell::new(&format!("{}", transaction.amount))]));
 
     table.set_format(*format::consts::FORMAT_NO_TITLE);
     table.printstd();
